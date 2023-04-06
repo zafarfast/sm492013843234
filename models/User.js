@@ -5,15 +5,15 @@ const userSchema = new Schema(
   {
     username: {type: String, required: true, trim:true, unique:true},
     email: {type: String, required:true, unique:true},
-    thoughts:
+    thoughts:[
     {
       type: Schema.Types.ObjectId,
       ref: 'Thought',
-    },
-    friends: {
+    }],
+    friends: [{
       type: Schema.Types.ObjectId,
       ref: 'User',
-    }
+    }]
   },
   {
       toJSON: {
@@ -29,7 +29,9 @@ userSchema
   .virtual('friendCount')
   // Getter to get the friend count
   .get(function () {
-    return `${this.friends.length}`;
+    if (this.friends.length)
+    {return `${this.friends.length}`;}
+    
   })
   // Setter to set the friendCount
   .set(function (v) {

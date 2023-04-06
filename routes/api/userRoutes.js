@@ -3,19 +3,58 @@ const User = require('../../models/User');
 const Thought = require('../../models/Thought');
 
 router.get('/',(req,res)=>{
-  res.send("Hello from Users")
+  User.find({}, (err, result) => {
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      console.log('Uh Oh, something went wrong');
+      res.status(500).json({ error: 'Something went wrong' });
+    }
+  });
+
 })
 
 router.get('/:id',(req,res)=>{
-  res.send(`Hello from GET users by ID ${req.params.id}`)
+  User.findOne({ id: req.params.id }, (err, result) => {
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      console.log('Uh Oh, something went wrong');
+      res.status(500).json({ error: 'Something went wrong' });
+    }
+  });
 })
 
 router.post('/',(req,res)=>{
-  res.send(`Hello from Users POST`)
+  const newUser = new User({ username: req.params.username, email:req.params.username });
+  newUser.save();
+  if (newUser) {
+    res.status(201).json(newUser);
+  } else {
+    console.log('Uh Oh, something went wrong');
+    res.status(500).json({ error: 'Something went wrong' });
+  }
 })
 
 router.post('/:userId/friends/:friendId',(req,res)=>{
-  res.send(`to add a new friend to a user's friend list  `)
+  const friend = user.find({id:req.params.friendId})
+  const user = user.find({id:req.params.userId})
+  User.findOneAndUpdate(
+     { id: req.params.userId },
+    // Replaces name with value in URL param
+    { friends: [...user.id] },
+    // Sets to true so updated document is returned; Otherwise original document will be returned
+    { new: true },
+    (err, result) => {
+      if (result) {
+        res.status(200).json(result);
+        console.log(`Updated: ${result}`);
+      } else {
+        console.log('Uh Oh, something went wrong');
+        res.status(500).json({ message: 'something went wrong' });
+      }
+    }
+  );
 })
 
 
