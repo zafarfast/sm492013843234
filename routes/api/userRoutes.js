@@ -24,7 +24,7 @@ router.get('/:id',(req,res)=>{
   });
 })
 
-router.post('/',async (req,res)=>{
+router.post('/', (req,res)=>{
   const newUser = new User({ username: req.body.username, email: req.body.email });
   newUser.save();
   if (newUser) {
@@ -43,9 +43,7 @@ router.post('/:userId/friends/:friendId',async (req,res)=>{
 
   User.findOneAndUpdate(
      { id: user.id },
-    // Replaces name with value in URL param
     { friends: user.friends },
-    // Sets to true so updated document is returned; Otherwise original document will be returned
     { new: true },
     (err, result) => {
       if (result) {
@@ -60,15 +58,39 @@ router.post('/:userId/friends/:friendId',async (req,res)=>{
 })
 
 
-router.put('/:id',(req,res)=>{
-  res.send(`Hello from User PUT by ID ${req.params.id}`)
-})
-router.delete('/:id',(req,res)=>{
-  res.send(`Hello from User DELETE by ID ${req.params.id}`)
+router.put('/:id',async (req,res)=>{
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: req.params.id },
+    { username: req.body.username, email: req.body.email },
+    { new: true }
+  );
+  res.status(200).json(updatedUser)
 })
 
-router.delete('/:userId/friends/:friendId',(req,res)=>{
-  res.send(`to delete a  friend from a user's friend list  `)
+router.delete('/:id',async (req,res)=>{
+  await User.findOneAndDelete({ _id: req.params.id });
+  res.send('User Deleted')
+})
+
+router.delete('/:userId/friends/:friendId', async (req,res)=>{
+  const user = await User.findOne({_id:req.params.userId})
+  console.log(`User: ${user}`)
+  const friendIdIndex = user.friends.indexOf(req.params.friendId)
+  let newFrindsArr = [];
+  for (i=0; i<user.friends.length; i++)
+  {
+    if (i !== friendIdIndex)
+    {
+      newFrindsArr[i] = user.friends[i]
+    }
+  }
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: req.params.userId },
+    { friends: newFrindsArr},
+    { new: true }
+  ).populate({ path: 'friends', select: '-__v'});
+  res.status(200).json(updatedUser)
+
 })
 
 module.exports = router;
