@@ -3,14 +3,13 @@ const User = require('../../models/User');
 const Thought = require('../../models/Thought');
 
 router.get('/',(req,res)=>{
-  User.find({}, (err, result) => {
+  User.find({}).populate({ path: 'friends', select: '-__v' }).then((result) => {
     if (result) {
       res.status(200).json(result);
     } else {
       console.log('Uh Oh, something went wrong');
       res.status(500).json({ error: 'Something went wrong' });
-    }
-  });
+    }});
 
 })
 
@@ -25,8 +24,8 @@ router.get('/:id',(req,res)=>{
   });
 })
 
-router.post('/',(req,res)=>{
-  const newUser = new User({ username: req.params.username, email:req.params.username });
+router.post('/',async (req,res)=>{
+  const newUser = new User({ username: req.body.username, email: req.body.email });
   newUser.save();
   if (newUser) {
     res.status(201).json(newUser);
@@ -36,13 +35,16 @@ router.post('/',(req,res)=>{
   }
 })
 
-router.post('/:userId/friends/:friendId',(req,res)=>{
-  const friend = user.find({id:req.params.friendId})
-  const user = user.find({id:req.params.userId})
+router.post('/:userId/friends/:friendId',async (req,res)=>{
+  const friend = await User.findOne({_id:req.params.friendId})
+  const user = await User.findOne({_id:req.params.userId})
+  
+  user.friends.push(friend._id)
+
   User.findOneAndUpdate(
-     { id: req.params.userId },
+     { id: user.id },
     // Replaces name with value in URL param
-    { friends: [...user.id] },
+    { friends: user.friends },
     // Sets to true so updated document is returned; Otherwise original document will be returned
     { new: true },
     (err, result) => {

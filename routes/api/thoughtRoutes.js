@@ -1,7 +1,15 @@
 const router = require('express').Router();
+const Thought = require('../../models/Thought');
 
 router.get('/',(req,res)=>{
-  res.send("Hello from thoughts")
+  Thought.find({}, (err, result) => {
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      console.log('Uh Oh, something went wrong');
+      res.status(500).json({ error: 'Something went wrong' });
+    }
+  });
 })
 
 router.get('/:id',(req,res)=>{
