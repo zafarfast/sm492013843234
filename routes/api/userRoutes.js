@@ -3,7 +3,7 @@ const User = require('../../models/User');
 const Thought = require('../../models/Thought');
 
 router.get('/',(req,res)=>{
-  User.find({}).populate({ path: 'friends', select: '-__v' }).then((result) => {
+  User.find({}).populate({ path: 'friends', select: '-__v' }).populate({path:'thoughts', select: '-__v'}).then((result) => {
     if (result) {
       res.status(200).json(result);
     } else {
