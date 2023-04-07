@@ -14,7 +14,7 @@ const thoughtSchema = new mongoose.Schema(
       minlength: 1,
     },
     reactions: {
-      type:[reactionSchema],
+      type: [reactionSchema],
     },
     createdAt: { type: Date, default: Date.now },
   },

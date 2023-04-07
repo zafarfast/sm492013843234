@@ -2,18 +2,19 @@ const router = require('express').Router();
 const User = require('../../models/User');
 const Thought = require('../../models/Thought');
 
-router.get('/',(req,res)=>{
-  User.find({}).populate({ path: 'friends', select: '-__v' }).populate({path:'thoughts', select: '-__v'}).then((result) => {
+router.get('/', (req, res) => {
+  User.find({}).populate({ path: 'friends', select: '-__v' }).populate({ path: 'thoughts', select: '-__v' }).then((result) => {
     if (result) {
       res.status(200).json(result);
     } else {
       console.log('Uh Oh, something went wrong');
       res.status(500).json({ error: 'Something went wrong' });
-    }});
+    }
+  });
 
 })
 
-router.get('/:id',(req,res)=>{
+router.get('/:id', (req, res) => {
   User.findOne({ id: req.params.id }, (err, result) => {
     if (result) {
       res.status(200).json(result);
@@ -24,7 +25,7 @@ router.get('/:id',(req,res)=>{
   });
 })
 
-router.post('/', (req,res)=>{
+router.post('/', (req, res) => {
   const newUser = new User({ username: req.body.username, email: req.body.email });
   newUser.save();
   if (newUser) {
@@ -35,14 +36,14 @@ router.post('/', (req,res)=>{
   }
 })
 
-router.post('/:userId/friends/:friendId',async (req,res)=>{
-  const friend = await User.findOne({_id:req.params.friendId})
-  const user = await User.findOne({_id:req.params.userId})
-  
+router.post('/:userId/friends/:friendId', async (req, res) => {
+  const friend = await User.findOne({ _id: req.params.friendId })
+  const user = await User.findOne({ _id: req.params.userId })
+
   user.friends.push(friend._id)
 
   User.findOneAndUpdate(
-     { id: user.id },
+    { id: user.id },
     { friends: user.friends },
     { new: true },
     (err, result) => {
@@ -58,7 +59,7 @@ router.post('/:userId/friends/:friendId',async (req,res)=>{
 })
 
 
-router.put('/:id',async (req,res)=>{
+router.put('/:id', async (req, res) => {
   const updatedUser = await User.findOneAndUpdate(
     { _id: req.params.id },
     { username: req.body.username, email: req.body.email },
@@ -67,12 +68,12 @@ router.put('/:id',async (req,res)=>{
   res.status(200).json(updatedUser)
 })
 
-router.delete('/:id',async (req,res)=>{
+router.delete('/:id', async (req, res) => {
   await User.findOneAndDelete({ _id: req.params.id });
   res.send('User Deleted')
 })
 
-router.delete('/:userId/friends/:friendId', async (req,res)=>{
+router.delete('/:userId/friends/:friendId', async (req, res) => {
   // const user = await User.findOne({_id:req.params.userId})
   // console.log(`User: ${user}`)
   // const friendIdIndex = user.friends.indexOf(req.params.friendId)
@@ -99,7 +100,7 @@ router.delete('/:userId/friends/:friendId', async (req,res)=>{
   try {
     const result = await User.updateOne(
       { _id: userId },
-      { $pull: { friends: friendId}},
+      { $pull: { friends: friendId } },
       { new: true },
     )
 
