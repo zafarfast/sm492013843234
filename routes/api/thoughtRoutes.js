@@ -1,6 +1,8 @@
 const router = require('express').Router();
+const { Schema } = require('mongoose');
 const Thought = require('../../models/Thought');
 const User = require('../../models/User');
+const Reaction = require('../../models/Reaction');
 
 router.get('/',(req,res)=>{
   Thought.find({}, (err, result) => {
@@ -37,7 +39,7 @@ router.post('/',async (req,res)=>{
    const tt = await User.findOne({username:req.body.username}).populate({path:'thoughts', select: '-__v'}).populate({path:'friends', select: '-__v'})
    if (tt)
    {
-    res.send(200).json(tt)
+    res.status(200).json(tt)
    }
    else {
     res.send('Something went wrong')
@@ -46,8 +48,32 @@ router.post('/',async (req,res)=>{
   })
 
 
-router.post('/:id/reactions',(req,res)=>{
-  res.send(`to create a reaction stored in a single thought's reactions array field  `)
+router.post('/:thoughtId/reactions', async (req,res)=>{
+
+  const user = await Thought.findOne({_id:req.params.thoughtId})
+
+  console.log()
+  const newReaction = {
+        username: req.body.username,
+        reactionBody: req.body.reactionBody
+  }
+
+  try {
+    const result = await Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $push: {reactions: newReaction} },
+      { new: true },
+    )
+
+    if (!result) {
+      return res.status(404).send('user not found')
+    }
+
+    res.send('friend removed succ')
+  } catch (err) {
+    console.log(err)
+    res.status(500).send('500 err')
+  }
 })
 
 router.put('/:id',(req,res)=>{

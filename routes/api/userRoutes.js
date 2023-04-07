@@ -73,24 +73,45 @@ router.delete('/:id',async (req,res)=>{
 })
 
 router.delete('/:userId/friends/:friendId', async (req,res)=>{
-  const user = await User.findOne({_id:req.params.userId})
-  console.log(`User: ${user}`)
-  const friendIdIndex = user.friends.indexOf(req.params.friendId)
-  let newFrindsArr = [];
-  for (i=0; i<user.friends.length; i++)
-  {
-    if (i !== friendIdIndex)
-    {
-      newFrindsArr[i] = user.friends[i]
-    }
-  }
-  const updatedUser = await User.findOneAndUpdate(
-    { _id: req.params.userId },
-    { friends: newFrindsArr},
-    { new: true }
-  ).populate({ path: 'friends', select: '-__v'});
-  res.status(200).json(updatedUser)
+  // const user = await User.findOne({_id:req.params.userId})
+  // console.log(`User: ${user}`)
+  // const friendIdIndex = user.friends.indexOf(req.params.friendId)
+  // let newFrindsArr = [];
+  // for (i=0; i<user.friends.length; i++)
+  // {
+  //   if (i !== friendIdIndex)
+  //   {
+  //     newFrindsArr[i] = user.friends[i]
+  //   }
+  // }
+  // const updatedUser = await User.findOneAndUpdate(
+  //   { _id: req.params.userId },
+  //   { friends: newFrindsArr},
+  //   { new: true }
+  // ).populate({ path: 'friends', select: '-__v'});
+  // res.status(200).json(updatedUser)
 
+  const userId = req.params.userId
+  const friendId = req.params.friendId
+
+  console.log(friendId)
+  console.log(userId)
+  try {
+    const result = await User.updateOne(
+      { _id: userId },
+      { $pull: { friends: friendId}},
+      { new: true },
+    )
+
+    if (!result) {
+      return res.status(404).send('user not found')
+    }
+
+    res.send('friend removed succ')
+  } catch (err) {
+    console.log(err)
+    res.status(500).send('500 err')
+  }
 })
 
 module.exports = router;
