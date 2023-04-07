@@ -88,18 +88,12 @@ router.put('/:id', async (req, res) => {
       res.status(200).json(updatedThought)
     }
 
-    res.send('Something went wrong')
+    else{res.send('Something went wrong')}
 
 })
 
 router.delete('/:id', async (req, res) => {
-  const updatedThought = await Thought.findOneAndDelete({ _id: req.params.id })
-  if (!result) {
-    return res.status(404).send('Thought not found')
-  }
-
-  res.send('Thought removed successfully')
-
+  Thought.findOneAndDelete({ _id: req.params.id }).then(()=>{res.send('Thought removed successfully')})
 })
 
 router.delete('/:thoughtId/reactions/:reactionId', async (req, res) => {

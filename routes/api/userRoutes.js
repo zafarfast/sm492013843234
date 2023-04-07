@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
 })
 
 router.get('/:id', (req, res) => {
-  User.findOne({ id: req.params.id }, (err, result) => {
+  User.findOne({ _id: req.params.id }, (err, result) => {
     if (result) {
       res.status(200).json(result);
     } else {
