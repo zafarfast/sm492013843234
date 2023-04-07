@@ -67,7 +67,7 @@ router.post('/:thoughtId/reactions', async (req, res) => {
       return res.status(404).send('user not found')
     }
 
-    res.send('friend removed succ')
+    res.status(200).json(result)
   } catch (err) {
     console.log(err)
     res.status(500).send('500 err')
@@ -82,12 +82,24 @@ router.put('/:id', async (req, res) => {
       thoughtText: req.body.thoughtText,
     },
     {new: true}
-    )
+    ).populate({path:'reactions', select: '-__v' })
+    if(updatedThought)
+    {
+      res.status(200).json(updatedThought)
+    }
+
+    res.send('Something went wrong')
+
 })
 
 router.delete('/:id', async (req, res) => {
-  const updatedThought = await Thought.findOneAndDelete(
-    { _id: req.params.id })
+  const updatedThought = await Thought.findOneAndDelete({ _id: req.params.id })
+  if (!result) {
+    return res.status(404).send('Thought not found')
+  }
+
+  res.send('Thought removed successfully')
+
 })
 
 router.delete('/:thoughtId/reactions/:reactionId', async (req, res) => {
